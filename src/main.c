@@ -103,6 +103,9 @@ int main(int argc, char *argv[]){
     }
 
     int shouldExit = 0;
+    double lastTime, deltaTime;
+    deltaTime = 0.016;
+    lastTime = SDL_GetTicks();
     /* Main while loop*/
     SDL_Event mEvent;
     while(shouldExit == 0){
@@ -126,8 +129,11 @@ int main(int argc, char *argv[]){
             fprintf(stderr, "Error: Error processing viewer.\n");
             return -1;
         }
-        /* Update screen */
-        SDL_RenderPresent(mainRenderer);
+        if(SDL_GetTicks() >= lastTime + deltaTime/1000){
+            /* Update screen */
+            SDL_RenderPresent(mainRenderer);
+            lastTime = SDL_GetTicks();
+        }
     }
 
     /* Quit SDL subsystems safely before returning */

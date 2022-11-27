@@ -8,6 +8,7 @@
 
 SDL_Renderer *vRenderer;
 SDL_Texture *mainTexture;
+int w, h;
 SDL_Rect destRect;
 SDL_Rect displayRect;
 double zoom = 1.0;
@@ -18,7 +19,12 @@ int initViewer(SDL_Renderer *mRenderer, char *filePath){
         fprintf(stderr, "Error: Failed to load image. Likely improper file path: %s\n", SDL_GetError());
         return -1;
     }
+    SDL_QueryTexture(mainTexture, NULL, NULL, &w, &h);
     SDL_RenderGetViewport(vRenderer, &displayRect);
+    destRect.x = (int)(displayRect.w/2) - (int)(w/2);
+    destRect.y = (int)(displayRect.h/2) - (int)(h/2);
+    destRect.w = w;
+    destRect.h = h;
     return 0;
 }
 
@@ -37,6 +43,10 @@ int processViewerEvents(SDL_Event *vEvent){
 /* Main function to call functions to process input and change
 content rendered */
 int updateViewer(){
+    destRect.x = (int)(displayRect.w/2) - (int)(w/2);
+    destRect.y = (int)(displayRect.h/2) - (int)(h/2);
+    destRect.w = w;
+    destRect.h = h;
     SDL_RenderCopy(vRenderer, mainTexture, NULL, &destRect);
     return 0;
 }
