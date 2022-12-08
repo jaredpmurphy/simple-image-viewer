@@ -19,8 +19,11 @@ int initViewer(SDL_Renderer *mRenderer, char *filePath){
         fprintf(stderr, "Error: Failed to load image. Likely improper file path: %s\n", SDL_GetError());
         return -1;
     }
+    /* get width and height of image loaded */
     SDL_QueryTexture(mainTexture, NULL, NULL, &w, &h);
+    /* Get size of viewport and store in displayRect */
     SDL_RenderGetViewport(vRenderer, &displayRect);
+    /* Centre it, for posterity? */
     destRect.x = (int)(displayRect.w/2) - (int)(w/2);
     destRect.y = (int)(displayRect.h/2) - (int)(h/2);
     destRect.w = w;
@@ -29,12 +32,18 @@ int initViewer(SDL_Renderer *mRenderer, char *filePath){
 }
 
 int processViewerEvents(SDL_Event *vEvent){
-    /* Check for input to drag image or zoom image */
+    /* Check for window resize and update displayRect for updateViewer calculations */
     if(vEvent->type == SDL_WINDOWEVENT){
         switch (vEvent->window.event){
             case SDL_WINDOWEVENT_RESIZED:
                 SDL_RenderGetViewport(vRenderer, &displayRect);
                 break;
+        }
+    } else if (vEvent->type == SDL_MOUSEWHEEL){
+        if(vEvent->wheel.y > 0){
+            //scroll up
+        }else if(vEvent->wheel.y < 0){
+            //scroll down
         }
     }
     return 0;
