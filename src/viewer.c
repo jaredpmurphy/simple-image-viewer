@@ -31,6 +31,9 @@ int initViewer(SDL_Renderer *mRenderer, char *filePath){
     return 0;
 }
 
+int mPressed;
+int xoff;
+int yoff;
 int processViewerEvents(SDL_Event *vEvent){
     /* Check for window resize and update displayRect for updateViewer calculations */
     if(vEvent->type == SDL_WINDOWEVENT){
@@ -40,11 +43,22 @@ int processViewerEvents(SDL_Event *vEvent){
                 break;
         }
     } else if (vEvent->type == SDL_MOUSEWHEEL){
-        if(vEvent->wheel.y > 0){
+        if(vEvent->wheel.preciseY > 0 && zoom < 10){
             //scroll up
-        }else if(vEvent->wheel.y < 0){
+            zoom += vEvent->wheel.preciseY/5;
+        }else if(vEvent->wheel.preciseY < 0 && zoom > 0.5){
             //scroll down
+            zoom += vEvent->wheel.preciseY/5;
         }
+    } else if (vEvent->type == SDL_MOUSEBUTTONDOWN){
+        if(vEvent->button.button == SDL_BUTTON_LEFT)
+            mPressed = 1;
+    } else if(vEvent->type == SDL_MOUSEBUTTONUP){
+        if(vEvent->button.button == SDL_BUTTON_LEFT)
+            mPressed = 0;
+    } else if(vEvent->type == SDL_MOUSEMOTION && mPressed == 1){
+        xoff += vEvent->motion.xrel;
+        yoff += vEvent->motion.yrel;
     }
     return 0;
 }
@@ -52,10 +66,18 @@ int processViewerEvents(SDL_Event *vEvent){
 /* Main function to call functions to process input and change
 content rendered */
 int updateViewer(){
-    destRect.x = (int)(displayRect.w/2) - (int)(w/2);
-    destRect.y = (int)(displayRect.h/2) - (int)(h/2);
-    destRect.w = w;
-    destRect.h = h;
+    //reset xoff yoff when needed
+    if((int)w*zoom <= displayRect.w || (int)h*zoom <= displayRect.y){
+        destRect.x = (int)(displayRect.w/2) - (int)(w*zoom/2);
+        destRect.y = (int)(displayRect.h/2) - (int)(h*zoom/2);
+        xoff = 0;
+        yoff = 0;
+    }else{
+        destRect.x = (int)(displayRect.w/2) - (int)(w*zoom/2) + (int)xoff;
+        destRect.y = (int)(displayRect.h/2) - (int)(h*zoom/2) + (int)yoff;
+    }
+    destRect.w = (int)w*zoom;
+    destRect.h = (int)h*zoom;
     SDL_RenderCopy(vRenderer, mainTexture, NULL, &destRect);
     return 0;
 }
